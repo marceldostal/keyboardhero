@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <!-- this disables zoom on mobile devices -->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0,
+              maximum-scale=1.0, user-scalable=0">
+
+        <title>Keyboard Hero Touch</title>
+
+
+        <style type="text/css">
+            /* Remove margins and HTML scrollbars */
+            BODY, HTML  {
+                margin: 0;
+                padding: 0;
+                overflow: hidden;
+            }
+
+            .deselect ::selection {
+                background: transparent;
+                color: inherit;
+            }
+            .deselect ::-moz-selection {
+                background: transparent;
+                color: inherit;
+            }
+            .deselect {
+                cursor: default;
+                -ms-user-select: none;
+                -webkit-user-select: none;
+                -moz-user-select: none;
+                user-select: none;                
+            }
+
+            .box {
+                pointer-events: none;
+
+                position:absolute;
+                height: 100%;
+                width: 100%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .menu {
+                display: none;
+                pointer-events: auto;
+                max-width: 635px;
+                width: 100%;
+                border: solid #000000 1px;
+                background-color: #1D3B5F;        
+                color: #ffffff;
+
+                -webkit-box-shadow: 0px 0px 26px #000000;
+                -moz-box-shadow: 0px 0px 26px #000000;
+                box-shadow: 0px 0px 26px #000000;  
+            }
+
+            .menu h1 {
+                font-size: 3.5em;
+                text-align: center;                
+                margin: 0.2em 15% 0.2em;
+                  
+            }
+
+            .menu p {                
+                margin: 1.2em 15% 1.2em;
+                
+            }
+
+            .btn {
+                width:100%;
+                background: #3498db;
+                background-image: -webkit-linear-gradient(top, #3498db, #2980b9);
+                background-image: -moz-linear-gradient(top, #3498db, #2980b9);
+                background-image: -ms-linear-gradient(top, #3498db, #2980b9);
+                background-image: -o-linear-gradient(top, #3498db, #2980b9);
+                background-image: linear-gradient(to bottom, #3498db, #2980b9);
+                -webkit-border-radius: 0;
+                -moz-border-radius: 0;
+                border-radius: 0px;
+                text-shadow: 1px 1px 15px #2a1f6b;
+                -webkit-box-shadow: 0px 0px 6px #000000;
+                -moz-box-shadow: 0px 0px 6px #000000;
+                box-shadow: 0px 0px 6px #000000;
+                font-family: Arial;
+                color: #ffffff;
+                font-size: 2em;
+                padding: 10px 0 ;
+                border: solid #000000 1px;
+                text-decoration: none;
+            }
+
+            .btn:hover {
+                background: #3cb0fd;
+                background-image: -webkit-linear-gradient(top, #3cb0fd, #3498db);
+                background-image: -moz-linear-gradient(top, #3cb0fd, #3498db);
+                background-image: -ms-linear-gradient(top, #3cb0fd, #3498db);
+                background-image: -o-linear-gradient(top, #3cb0fd, #3498db);
+                background-image: linear-gradient(to bottom, #3cb0fd, #3498db);
+                text-decoration: none;
+            }
+
+            .btn:active {
+                background: #3cb0fd;
+                text-decoration: none;
+            }
+
+            ul { 
+                position:relative;
+                list-style: none;
+                padding: 0;
+                margin: 0 15% 1em;				
+            }
+
+            li {
+                width: 100%;
+                display: inline-block;
+                list-style: none;
+                margin: 0.5em 0;
+                padding: 0;
+            }
+
+            .column {
+                width: 47%;
+            }
+            .column + .column{
+                margin: 0 0 0 6% ;
+            }
+
+            .tableScroll {
+                display: table;
+                width: 70%;
+                margin: 0 15% 1em;
+            }
+            .tableScroll thead, .tableScroll tbody {
+                float: left;
+                width: 100%;
+                text-align: center;
+            }
+            .tableScroll tbody {
+                overflow: auto;
+                height: 120px;
+            }
+            .tableScroll tr {
+                width: 100%;
+                display: table;
+            }
+
+            .tableScroll td{
+                width: 33%;
+            }
+
+
+
+
+            .controlls{
+                padding: 0px;
+                margin: 5px;
+                position: relative;
+                float:right;
+            }
+            .controlls button{
+                vertical-align: middle;
+                line-height: 0;
+                font-size: 1.2em;
+                padding: -10px;
+                width: 2em;
+                height:2em;
+            }
+
+        </style> 
+
+
+        <link rel="icon" type="image/vnd.microsoft.icon" href="favicon.ico">
+
+    </head>
+    <body>
+        <div>
+            <div class="box">
+
+                <div id ="menuHighscore" class="menu">
+                    <h1>Highscore</h1>
+                    <table id="tableHighscore" class="tableScroll">
+                        <thead>
+                            <tr>
+                                <th>Nr.</th>
+                                <th>User</th>
+                                <th>Score</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBodyHighscore">
+                        </tbody>
+                    </table>
+                    <ul>
+                        <li class="column">
+                            <button name="btnRestart" class="btn">Restart</button>
+                        </li><li class="column">
+                            <button name="btnBack" class="btn">Back</button>
+                        </li>
+                    </ul>
+                </div>
+                
+                
+                
+                
+                <div id ="menuPause" class="menu deselect">
+                    <div class="controlls">
+                        <button name="btnFullscreen">&Square;</button>
+                    </div>
+                    <h1>Pause</h1>
+                    <ul>
+                        <li><button name="btnResume" class="btn">Resume</button></li>
+                        <li><button name="btnHighscore" class="btn">Highscore</button></li>                        
+                        <li class="column">
+                            <button name="btnRestart" class="btn">Restart</button>
+                        </li><li class="column">
+                            <button name="btnExit" class="btn">Exit</button>
+                        </li>
+                    </ul>
+                </div>
+                
+                
+                
+                
+                <div id ="menuMain" class="menu deselect">
+                    <div class="controlls">
+                        <button name="btnFullscreen">&Square;</button>
+                    </div>
+                    <h1>Keyboard Hero</h1>
+                    <ul>
+                        <li><button name="btnStart" class="btn">Start</button></li>
+                        <li><button name="btnHelp" class="btn">Help</button></li> 
+                        <li><button name="btnOptions" class="btn">Options</button></li>                      
+                    </ul>
+                </div>
+                
+                
+                
+                
+                <div id ="menuHelp" class="menu deselect">                  
+                    <h1>Help</h1>
+                    <p>
+                        Click "Start" to select an level. <br>
+                        After the game starts you can see objects coming from the top,
+                        the goal is to press the associated button when the object is closest to the red line.
+                        You get more points if you hit the key at the right time.<br>
+                        <br>
+                        The game is playable with a touchscreen/mouse or keyboard. <br>
+                        Keyboardlayout can be viewed/changed at the "Options" menu.                     
+                    </p>
+                    
+                    <ul>
+                        <li><button name="btnBack" class="btn">Back</button></li>
+                    </ul>
+                </div>
+                
+              
+                
+                <div id ="menuOptions" class="menu deselect">                  
+                    <h1>Options</h1> 
+                    <table id="tableOptions" class="tableScroll">
+                        <thead>
+                            <tr>
+                                <th>Key</th>
+                                <th>Primary</th>
+                                <th>Secondary</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBodyOptions">
+                        </tbody>
+                    </table>
+                    <ul>
+                        <li class="column">
+                            <button name="btnBack" class="btn">Back</button>
+                        </li><li class="column">
+                            <button name="btnSave" class="btn">Save</button>
+                        </li>
+                    </ul>
+                </div>               
+                
+                
+                <div id ="menuLevel" class="menu">
+                    <h1>Level</h1>
+                    <table id="tableLevel" class="tableScroll">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Artist</th>
+                                <th>Select</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBodyLevel">
+                        </tbody>
+                    </table>
+                    <ul>
+                        <li class="column">
+                            <button name="btnBack" class="btn">Back</button>
+                        </li><li class="column">
+                            <button name="btnSelect" class="btn">Select</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <canvas id="game" width="640" height="480">Sorry, your browser does not support canvas.</canvas> 
+        </div>
+        <script type="text/javascript" src="js/createjs-2015.11.26.min.js"></script>
+        <script type="text/javascript" src="js/app.bundle.js"></script>
+        <!--  <script type="text/javascript" src="js/app.bundle.min.js"></script>     -->   
+    </body>
+</html>

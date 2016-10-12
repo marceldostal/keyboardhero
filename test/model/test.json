@@ -1,0 +1,9 @@
+{
+	"levelData": [
+		{"i":0,"time":0},
+		{"i":0,"time":1000},
+		{"i":1,"time":2000}
+	],
+	"musicURL": "base/test/model/test.mp3"
+	
+}

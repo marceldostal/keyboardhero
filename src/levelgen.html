@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+
+        <title>Keyboard Hero Touch Levelgenerator</title>
+
+        <link rel="icon" type="image/vnd.microsoft.icon" href="favicon.ico">
+
+    </head>
+    <body>
+        <script type="text/javascript">
+
+            var out = [];
+            var filters = ["lowpass", "bandpass", "highpass"];
+            var level;
+
+            /**
+             * Get the value of a querystring
+             * @param  {String} field The field to get the value of
+             * @param  {String} url   The URL to get the value from (optional)
+             * @return {String}       The field value
+             */
+            var getQueryString = function (field, url) {
+                var href = url ? url : window.location.href;
+                var reg = new RegExp('[?&]' + field + '=([^&#]*)', 'i');
+                var string = reg.exec(href);
+                return string ? string[1] : null;
+            };
+
+            window.onload = function () {
+
+
+                var file = null;
+                var xhr = new XMLHttpRequest();
+                xhr.open("GET", getQueryString("path"));
+                xhr.responseType = "blob";//force the HTTP response, response-type header to be blob
+                xhr.onload = function ()
+                {
+                    file = xhr.response;
+                    var reader = new FileReader();
+                    var context = new (window.AudioContext || window.webkitAudioContext)();
+                    reader.onload = function () {
+                        context.decodeAudioData(reader.result, function (buffer) {
+                            prepare(buffer, filters[0]);
+                        });
+                    };
+                    reader.readAsArrayBuffer(file);
+                };
+                xhr.send();
+
+            };
+
+            function printOut() {
+                out.sort(function (a, b) {
+                    return (a.time > b.time) ? 1 : ((b.time > a.time) ? -1 : 0);
+                });
+                level = {"levelData": out, "musicURL": getQueryString("path")};
+                var event = new CustomEvent('level', {'detail': level});
+                console.log(JSON.stringify(level));
+                
+                dispatchEvent(event);
+            }
+
+            function prepare(buffer, filtertype) {
+                var offlineContext = new OfflineAudioContext(1, buffer.length, buffer.sampleRate);
+                console.log(buffer.sampleRate+"  length" + buffer.length);
+                var source = offlineContext.createBufferSource();
+                source.buffer = buffer;
+                var filter = offlineContext.createBiquadFilter();
+                filter.type = filtertype;
+                source.connect(filter);
+                filter.connect(offlineContext.destination);
+                source.start(0);
+                offlineContext.startRendering();
+                offlineContext.oncomplete = function (e) {
+                    var peaks = process(e);
+                    var i = filters.indexOf(filtertype);
+console.log(i);
+                    for (var j = 0; j < peaks.length; j++) {
+                        var x = buffer.sampleRate / 1000;
+                        console.log(x);
+                        var time = Math.floor(peaks[j] / x);                        
+                        out.push({"i": i, "time": time});
+                    }
+                    if (i === 2) {
+                        printOut();
+                    } else {
+                        prepare(buffer, filters[i + 1]);
+                    }
+                };
+            }
+
+            function process(e) {
+                var filteredBuffer = e.renderedBuffer;
+                //If you want to analyze both channels, use the other channel later
+                var data = filteredBuffer.getChannelData(0);
+                var max = arrayMax(data);
+                var min = arrayMin(data);
+                var threshold = min + (max - min) * 0.96;
+                return getPeaksAtThreshold(data, threshold);
+            }
+
+// http://tech.beatport.com/2014/web-audio/beat-detection-using-web-audio/
+            function getPeaksAtThreshold(data, threshold) {
+                var peaksArray = [];
+                var length = data.length;
+                for (var i = 0; i < length; ) {
+                    if (data[i] > threshold) {
+                        peaksArray.push(i);
+                        // Skip forward ~ 1/4s to get past this peak.
+                        i += 10000;
+                    }
+                    i++;
+                }
+                return peaksArray;
+            }
+
+
+// http://stackoverflow.com/questions/1669190/javascript-min-max-array-values
+            function arrayMin(arr) {
+                var len = arr.length,
+                        min = Infinity;
+                while (len--) {
+                    if (arr[len] < min) {
+                        min = arr[len];
+                    }
+                }
+                return min;
+            }
+
+            function arrayMax(arr) {
+                var len = arr.length,
+                        max = -Infinity;
+                while (len--) {
+                    if (arr[len] > max) {
+                        max = arr[len];
+                    }
+                }
+                return max;
+            }
+
+        </script>
+
+    </body>
+</html>
